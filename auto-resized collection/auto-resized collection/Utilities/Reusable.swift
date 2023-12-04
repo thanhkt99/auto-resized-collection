@@ -1,0 +1,61 @@
+//
+//  Reusable.swift
+//  auto-resized collection
+//
+//  Created by Tien Thanh on 11/21/23.
+//
+
+import UIKit
+
+protocol Reusable {
+    static var reuseID: String { get }
+}
+
+extension Reusable {
+    static var reuseID: String {
+        return String(describing: self)
+    }
+}
+
+extension UITableViewCell: Reusable { }
+
+extension UIViewController: Reusable { }
+
+extension UICollectionViewCell: Reusable { }
+
+extension UITableView {
+    func dequeueReusableCell<T>(ofType cellType: T.Type = T.self, at indexPath: IndexPath) -> T where T: UITableViewCell {
+        guard let cell = dequeueReusableCell(withIdentifier: cellType.reuseID,
+                                             for: indexPath) as? T else {
+            fatalError()
+        }
+        return cell
+    }
+    
+    func register<T: UITableViewCell>(ofType cellType: T.Type) {
+        self.register(UINib(nibName: cellType.reuseID, bundle: nil), forCellReuseIdentifier: cellType.reuseID)
+    }
+}
+
+extension UIStoryboard {
+    func instantiateViewController<T>(ofType type: T.Type = T.self) -> T where T: UIViewController {
+        guard let viewController = instantiateViewController(withIdentifier: type.reuseID) as? T else {
+            fatalError()
+        }
+        return viewController
+    }
+}
+
+extension UICollectionView {
+    func dequeueReusableCell<T>(ofType cellType: T.Type = T.self, at indexPath: IndexPath) -> T where T: UICollectionViewCell {
+        guard let cell = dequeueReusableCell(withReuseIdentifier: cellType.reuseID,
+                                             for: indexPath) as? T else {
+            fatalError()
+        }
+        return cell
+    }
+    
+    func register<T: UICollectionViewCell>(ofType cellType: T.Type) {
+        self.register(UINib(nibName: cellType.reuseID, bundle: nil), forCellWithReuseIdentifier: cellType.reuseID)
+    }
+}
